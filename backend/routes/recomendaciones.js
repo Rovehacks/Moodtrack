@@ -1,50 +1,52 @@
-// backend/routes/recomendaciones.js
+// --- routes/recomendaciones.js ---
+// Esta ruta es la que conecta nuestro backend de Node.js con el servicio de Python.
+
 const express = require('express');
-const axios = require('axios');
-const router = express.Router();
 const pool = require('../db');
+const fetch = require('node-fetch'); // Necesitarás instalar node-fetch: npm install node-fetch@2
 
-// Obtener registros del usuario y solicitar recomendaciones
-router.get('/:usuario_id', async (req, res) => {
+const router = express.Router();
+
+// Dirección de tu servicio de Python/Flask
+const PYTHON_SERVICE_URL = 'http://localhost:8000/recomendar';
+
+router.get('/:usuario_id', async (req, res, next) => {
   const { usuario_id } = req.params;
-
   try {
-    const result = await pool.query(
-      `SELECT * FROM registros_diarios WHERE usuario_id = $1 ORDER BY fecha DESC LIMIT 10`,
+    // 1. Obtenemos todos los registros del usuario desde nuestra base de datos
+    const registrosResult = await pool.query(
+      'SELECT * FROM registros_diarios WHERE usuario_id = $1 ORDER BY fecha ASC', // Orden ASC para el modelo
       [usuario_id]
     );
 
-    const registrosCompletos = result.rows;
-
-    if (registrosCompletos.length < 5) {
-      return res.json({ recomendaciones: [] });
-    }
-
-    // Solo enviar las columnas que el modelo espera
-    const registros = registrosCompletos.map(reg => ({
-      sueno_horas: reg.sueno_horas,
-      gimnasio: reg.gimnasio,
-      correr: reg.correr,
-      comidas: reg.comidas,
-      trabajo_horas: reg.trabajo_horas,
-      escuela_horas: reg.escuela_horas,
-      meditacion_min: reg.meditacion_min,
-      higiene: reg.higiene,
-      interaccion_social_min: reg.interaccion_social_min,
-      estado_animo: reg.estado_animo
-    }));
-
-    const response = await axios.post('http://localhost:8000/recomendar', {
-      registros
+    const registros = registrosResult.rows;
+    
+    // 2. Hacemos una petición POST a nuestro servicio de Python, enviándole los registros.
+    const response = await fetch(PYTHON_SERVICE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ registros: registros }),
     });
 
-    const recomendaciones = response.data.recomendaciones;
-    res.json({ recomendaciones });
+    if (!response.ok) {
+      // Si el servicio de Python falla, lo notificamos.
+      throw new Error(`El servicio de recomendaciones respondió con el estado: ${response.status}`);
+    }
 
-  } catch (error) {
-    console.error('Error al obtener recomendaciones:', error.message);
-    res.status(500).json({ error: 'Error al generar recomendaciones' });
+    // 3. Devolvemos la respuesta del servicio de Python directamente al frontend.
+    const recomendacionesData = await response.json();
+    res.json(recomendacionesData);
+
+  } catch (err) {
+    // Manejo de errores, por si el servicio de Python no está disponible.
+    console.error("Error al contactar el servicio de Python:", err.message);
+    res.status(503).json({ 
+      recomendaciones: ["El servicio de recomendaciones no está disponible en este momento. Inténtalo más tarde."] 
+    });
   }
 });
 
 module.exports = router;
+
