@@ -1,7 +1,7 @@
 // src/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = '';
 
 export const login = (correo, contrasena) =>
   axios.post(`${API_URL}/auth/login`, { correo, contrasena });
