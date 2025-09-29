@@ -9,7 +9,7 @@ const Recomendaciones = () => {
   useEffect(() => {
     const obtenerRecomendaciones = async () => {
       try {
-        const res = await axios.get(`http://localhost:3001/recomendar/${usuario_id}`);
+        const res = await axios.get(`/recomendar/${usuario_id}`);
         setRecomendaciones(res.data.recomendaciones);
       } catch (err) {
         console.error('Error al obtener recomendaciones:', err);

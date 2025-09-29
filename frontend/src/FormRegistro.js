@@ -40,7 +40,7 @@ const handleSubmit = async (e) => {
     // Agregar el id del usuario
     const datosAEnviar = { ...formData, usuario_id };
 
-    await axios.post('http://localhost:3001/registro', datosAEnviar);
+    await axios.post('/registro', datosAEnviar);
     alert('Registro guardado con éxito');
   } catch (error) {
     console.error(error);

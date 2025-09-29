@@ -29,7 +29,8 @@ const LogoutIcon = () => (
 
 
 // API
-const API_URL = 'http://localhost:3001';
+const API_URL = '';
+
 
 const api = {
   request: async (endpoint, method = 'GET', body = null) => {
