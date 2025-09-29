@@ -2,31 +2,22 @@ import React, { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
-// Este componente recibe los registros y los transforma en gráficos
 const DashboardGraficos = ({ registros }) => {
   const moodChartRef = useRef(null);
   const habitsChartRef = useRef(null);
 
   useEffect(() => {
     if (!registros || registros.length === 0) return;
-
-    // --- Preparamos los datos para los gráficos ---
-    // Invertimos los registros para que las fechas vayan de más antiguas a más nuevas
     const registrosOrdenados = [...registros].reverse();
-    
     const labels = registrosOrdenados.map(r => new Date(r.fecha).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }));
-    
-    // Datos para el gráfico de estado de ánimo
     const moodData = registrosOrdenados.map(r => r.estado_animo);
-
-    // Datos para el gráfico de frecuencia de hábitos
     const habitsData = {
       'Gimnasio': registros.filter(r => r.gimnasio).length,
       'Correr': registros.filter(r => r.correr).length,
       'Meditación': registros.filter(r => r.meditacion_min > 0).length,
     };
 
-    // --- Destruimos los gráficos anteriores para evitar duplicados ---
+
     if (moodChartRef.current?.chartInstance) {
       moodChartRef.current.chartInstance.destroy();
     }
@@ -34,7 +25,7 @@ const DashboardGraficos = ({ registros }) => {
       habitsChartRef.current.chartInstance.destroy();
     }
 
-    // --- Creamos el Gráfico de Líneas (Estado de Ánimo) ---
+
     const moodCtx = moodChartRef.current.getContext('2d');
     moodChartRef.current.chartInstance = new Chart(moodCtx, {
       type: 'line',
@@ -59,7 +50,7 @@ const DashboardGraficos = ({ registros }) => {
       }
     });
 
-    // --- Creamos el Gráfico de Barras (Frecuencia de Hábitos) ---
+
     const habitsCtx = habitsChartRef.current.getContext('2d');
     habitsChartRef.current.chartInstance = new Chart(habitsCtx, {
       type: 'bar',
