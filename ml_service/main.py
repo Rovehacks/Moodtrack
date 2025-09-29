@@ -3,11 +3,11 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from flask_cors import CORS
 
-# --- Configuración de la App ---
-app = Flask(__name__)
-CORS(app) # Habilitar CORS para permitir peticiones desde tu frontend
 
-# --- Constantes y Lógica del Modelo ---
+app = Flask(__name__)
+CORS(app) 
+
+# Constantes del Modelo
 MIN_RECORDS_FOR_MODEL = 5
 FEATURES = [
     'sueno_horas', 'gimnasio', 'correr', 'comidas',
@@ -16,7 +16,7 @@ FEATURES = [
 ]
 TARGET = 'estado_animo'
 
-# Umbrales para las recomendaciones. Facilita la modificación.
+# Recomendaciones
 THRESHOLDS = {
     "sueno_horas": (7, "Intenta dormir al menos 7-8 horas para mejorar tu descanso."),
     "gimnasio": (False, "Considera ejercitarte en el gimnasio, es un gran impulso de energía."),
@@ -27,6 +27,7 @@ THRESHOLDS = {
     "interaccion_social_min": (30, "Intenta socializar al menos 30 minutos, ¡una charla puede cambiar tu día!")
 }
 
+# Entrenar Modelo
 def entrenar_modelo(df):
     """
     Entrena un DecisionTreeClassifier si hay suficientes datos y variación.
@@ -34,14 +35,13 @@ def entrenar_modelo(df):
     if len(df) < MIN_RECORDS_FOR_MODEL:
         return None
 
-    # Asegurarse de que hay más de una clase de 'estado_animo' para entrenar
+    
     if df[TARGET].nunique() < 2:
-        return None # No se puede entrenar con un solo resultado
+        return None 
 
     X = df[FEATURES]
     y = df[TARGET]
     
-    # max_depth bajo para evitar sobreajuste con pocos datos
     clf = DecisionTreeClassifier(max_depth=4, random_state=42)
     clf.fit(X, y)
     return clf
@@ -54,16 +54,16 @@ def generar_recomendaciones_con_modelo(modelo, ultimo_registro):
     importancias = pd.Series(modelo.feature_importances_, index=FEATURES).sort_values(ascending=False)
     recomendaciones = []
     
-    # Revisar las 3 características más importantes para este usuario
+   
     for feature in importancias.head(3).index:
         if feature in THRESHOLDS:
             umbral, mensaje = THRESHOLDS[feature]
             valor_actual = ultimo_registro[feature]
 
-            # Si el valor no cumple el umbral, se añade la recomendación
-            if isinstance(umbral, bool) and valor_actual == umbral: # Para checkboxes como 'gimnasio'
+            
+            if isinstance(umbral, bool) and valor_actual == umbral: 
                  recomendaciones.append(mensaje)
-            elif isinstance(umbral, int) and valor_actual < umbral: # Para valores numéricos
+            elif isinstance(umbral, int) and valor_actual < umbral: 
                  recomendaciones.append(mensaje)
 
     if not recomendaciones:
@@ -86,11 +86,11 @@ def generar_recomendaciones_basadas_en_reglas(ultimo_registro):
     if not recomendaciones:
         recomendaciones.append("¡Excelente día! Parece que todos tus hábitos están en orden.")
         
-    # Devolvemos un máximo de 3 recomendaciones para no abrumar
+   
     return recomendaciones[:3]
 
 
-# --- Ruta de la API ---
+# API
 @app.route('/recomendar', methods=['POST'])
 def recomendar():
     """
@@ -105,7 +105,6 @@ def recomendar():
 
     try:
         df = pd.DataFrame(registros)
-        # Asegurarse que las columnas booleanas sean tratadas como tal
         for col in ['gimnasio', 'correr', 'higiene']:
             if col in df.columns:
                 df[col] = df[col].astype(bool)
@@ -117,15 +116,11 @@ def recomendar():
     modelo = entrenar_modelo(df)
     
     if modelo:
-        # Si el modelo se entrenó, usamos la lógica inteligente
         recomendaciones = generar_recomendaciones_con_modelo(modelo, ultimo_registro)
     else:
-        # Si no hay modelo, usamos las reglas básicas
         recomendaciones = generar_recomendaciones_basadas_en_reglas(ultimo_registro)
         
     return jsonify({"recomendaciones": recomendaciones})
 
-# --- Ejecución de la App ---
 if __name__ == '__main__':
-    # Usar puerto 8000 para no chocar con el frontend de React (puerto 3000) o el backend (3001)
     app.run(port=8000, debug=True)

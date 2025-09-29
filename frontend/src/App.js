@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
-// --- Icon Components (SVG) ---
-// Usamos componentes SVG para los iconos, lo que evita la necesidad de librerías externas.
+// Iconos
 const SunIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
 );
@@ -29,7 +28,7 @@ const LogoutIcon = () => (
 );
 
 
-// --- API Helper Functions ---
+// API
 const API_URL = 'http://localhost:3001';
 
 const api = {
@@ -64,7 +63,7 @@ const api = {
 };
 
 
-// --- Sub-Components ---
+// Subcomponentes
 const AuthFormContainer = ({ children, title }) => (
   <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col justify-center items-center p-4">
     <div className="w-full max-w-md">
@@ -260,7 +259,7 @@ function FormRegistro({ onRegistroGuardado }) {
     );
 }
 
-// --- Componente de Visualización de Datos ---
+// Visualización de Datos
 const DashboardGraficos = ({ registros }) => {
   const moodChartRef = useRef(null);
   const habitsChartRef = useRef(null);
@@ -357,7 +356,7 @@ const DashboardGraficos = ({ registros }) => {
 };
 
 
-// --- Componentes de Registros (Separados para optimización) ---
+// Registros
 const EditModal = React.memo(({ editData, onDataChange, onUpdate, onCancel }) => (
     <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 p-4">
         <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-2xl space-y-4 max-h-[90vh] overflow-y-auto">
@@ -533,8 +532,7 @@ function Registros({ registros, onDataChange }) {
     );
 }
 
-// --- Main App Component ---
-
+// App
 function App() {
   const [usuarioId, setUsuarioId] = useState(null);
   const [esRegistro, setEsRegistro] = useState(false);

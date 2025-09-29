@@ -1,4 +1,3 @@
-// src/RegisterForm.js
 import React, { useState } from 'react';
 import { register } from './api';
 

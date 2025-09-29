@@ -28,7 +28,7 @@ const FormRegistro = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Obtener usuario_id desde localStorage
+  // Obtener el id del usuario
   const usuario_id = localStorage.getItem('usuario_id');
 
   if (!usuario_id) {
@@ -37,7 +37,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    // Agregar el usuario_id al formData antes de enviarlo
+    // Agregar el id del usuario
     const datosAEnviar = { ...formData, usuario_id };
 
     await axios.post('http://localhost:3001/registro', datosAEnviar);

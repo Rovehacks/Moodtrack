@@ -1,9 +1,6 @@
-// --- routes/auth.js ---
-// Todas las rutas relacionadas con la autenticación de usuarios.
-
 const express = require('express');
 const bcrypt = require('bcrypt');
-const pool = require('../db'); // Asumimos que db.js está en la raíz
+const pool = require('../db'); 
 
 const router = express.Router();
 
@@ -18,10 +15,10 @@ router.post('/registro', async (req, res, next) => {
     );
     res.status(201).json(nuevoUsuario.rows[0]);
   } catch (err) {
-    if (err.code === '23505') { // Usuario ya existe
+    if (err.code === '23505') { 
       return res.status(400).json({ error: 'El correo ya está registrado.' });
     }
-    next(err); // Pasa el error al manejador central
+    next(err); 
   }
 });
 

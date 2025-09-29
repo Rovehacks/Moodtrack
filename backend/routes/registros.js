@@ -1,12 +1,9 @@
-// --- routes/registros.js ---
-// Rutas para Crear, Leer, Actualizar y Eliminar (CRUD) los registros diarios.
-
 const express = require('express');
 const pool = require('../db');
 
 const router = express.Router();
 
-// Obtener todos los registros de un usuario
+// Todos los registros del usuario
 router.get('/registros/:usuario_id', async (req, res, next) => {
   const { usuario_id } = req.params;
   try {
@@ -20,7 +17,7 @@ router.get('/registros/:usuario_id', async (req, res, next) => {
   }
 });
 
-// Guardar un nuevo registro diario
+// Guardar un nuevo registro de actividades
 router.post('/registro', async (req, res, next) => {
   try {
     const {
@@ -74,7 +71,7 @@ router.delete('/registro/:id', async (req, res, next) => {
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Registro no encontrado." });
     }
-    res.status(204).send(); // 204 No Content es una respuesta estándar para delete exitoso
+    res.status(204).send(); 
   } catch (err) {
     next(err);
   }
