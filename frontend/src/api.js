@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '';
+const API_URL = 'localhost:3001';
 
 export const login = (correo, contrasena) =>
   axios.post(`${API_URL}/auth/login`, { correo, contrasena });
